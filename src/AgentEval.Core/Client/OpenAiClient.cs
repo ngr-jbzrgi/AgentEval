@@ -12,8 +12,10 @@ namespace AgentEval.Core.Client;
 // A class can only inherit from ONE base class, but it can implement INFINITE interfaces.
 // If we made ILlmClient a regular class, our OpenAiClient would be trapped. It couldn't inherit from anything else (like a generic HttpService class). Interfaces keep our architecture incredibly lightweight and flexible.
 
+// The OpenAiClient class is a concrete implementation of the ILlmClient interface, responsible exclusively for communicating with the OpenAI servers.
+// The purpose of this class is to implement the Adapter design pattern. It takes the application's internal data structures and DTOs (such as ChatRequest), maps them to the request types expected by the official OpenAI SDK, sends the request to the API, and then converts the response back into the application's standardized format (ChatResponse).
+// In the AgentEval architecture, this class is registered in Program.cs as the primary implementation of the ILlmClient interface through dependency injection (DI). This allows the AgentLoop to interact with language models without being exposed to the complexities of the OpenAI API or any provider-specific code, keeping the core agent logic clean, modular, and provider-independent.
 
-// Naming Convention _ : its a private field - but here we used primary constructor
 
 public class OpenAiClient(HttpClient httpClient, string apiKey) : ILlmClient
 {
@@ -68,3 +70,4 @@ public class OpenAiClient(HttpClient httpClient, string apiKey) : ILlmClient
     }
 }
 
+// we never call JsonSerializer.Serialize() explicitly. Instead, we use HttpClient.PostAsJsonAsync(), which internally serializes the C# object into JSON, sets the Content-Type header to application/json, and sends the HTTP request. Similarly, ReadFromJsonAsync<T>() automatically deserializes the JSON response back into a C# object.
